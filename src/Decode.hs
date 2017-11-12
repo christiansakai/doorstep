@@ -16,7 +16,7 @@ import Data.Maybe (fromJust)
 import Data.List (intercalate)
 
 decodeListingJson :: Json -> Either Error [Item]
-decodeListingJson json =
+decodeListingJson json = do
   let maybeMap :: Maybe (Map String [Item])
       maybeMap = decode json
    in case maybeMap of

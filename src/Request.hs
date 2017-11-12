@@ -1,23 +1,24 @@
-module Request (getJobJson, getJobHtml) where
+module Request (getJobListJson, getJobListHtml) where
 
 import Types
 import Url (angelJsonUrl, angelJobListUrl)
-import Decode (decodeListingJson, itemsToQueryParams)
+import Decode 
+  ( decodeListingJson
+  , decodeHtmlJson
+  , itemsToQueryParams
+  )
 import Network.HTTP.Simple 
   ( parseRequest
   , getResponseBody
   , httpLBS
   )
+import Data.ByteString.Lazy.Char8 (unpack)
+import Control.Monad.IO.Class
+import Control.Monad.Catch
 
--- |
--- Note to self. Since this function will have type
--- getJobJson :: (MonadIO m, MonadThrow m) 
---            => JobCategory -> m (Maybe [Item])
--- and I don't want to add `exceptions` package that
--- responsibles for `Monadthrow` to the cabal file
--- I just use IO type here.
-getJobJson :: JobCategory -> IO (Either Error [Item])
-getJobJson jobCategory = do
+getJobListJson :: (MonadIO m, MonadThrow m) 
+               => JobCategory -> m (Either Error [Item])
+getJobListJson jobCategory = do
   let url = angelJsonUrl jobCategory 
 
   request <- parseRequest url
@@ -25,10 +26,11 @@ getJobJson jobCategory = do
 
   let jobJson = getResponseBody response
 
-  return $ decodeListingJson jobJson
+  return . decodeListingJson $ jobJson
 
--- getJobList :: JobCategory -> 
-getJobHtml jobCategory items = do
+getJobListHtml :: (MonadIO m, MonadThrow m) 
+               => JobCategory -> [Item] -> m (Either Error Html)
+getJobListHtml jobCategory items = do
   let query = itemsToQueryParams items
       url = angelJobListUrl jobCategory query
 
@@ -37,7 +39,5 @@ getJobHtml jobCategory items = do
 
   let jobHtml = getResponseBody response
 
-  return jobHtml
-
-
+  return . decodeHtmlJson $ jobHtml
 
