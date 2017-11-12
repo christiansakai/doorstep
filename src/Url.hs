@@ -1,6 +1,8 @@
-module Url where
-
-import qualified Data.Map as M
+module Url 
+  ( JobCategory(..)
+  , angelJsonUrl
+  , angelJobListUrl
+  ) where
 
 data JobCategory =
     BreakOutCompanies
@@ -11,6 +13,8 @@ data JobCategory =
   | StanfordFounders
   | StartupInterships
   | Hardware
+
+type Query = String
 
 angelBaseUrl :: String
 angelBaseUrl = "https://angel.co/job_lists/"
@@ -25,16 +29,18 @@ angelJobCategoryNumber Drones = "6"
 angelJobCategoryNumber FemaleFounders = "7"
 angelJobCategoryNumber Hardware = "7"
 
-angelDataUrl :: String
-angelDataUrl = concat [ angelBaseUrl, "6", filter ]
+angelJsonUrl :: JobCategory -> String
+angelJsonUrl jobCategory = concat 
+  [ angelBaseUrl
+  , angelJobCategoryNumber jobCategory 
+  , filter 
+  ]
   where filter = "/filter?filter%5Broles%5D=Software+Engineer"
 
-type Query = String
-
-angelJobListUrl :: Query -> String
-angelJobListUrl query = concat 
+angelJobListUrl :: JobCategory -> Query -> String
+angelJobListUrl jobCategory query = concat 
   [ angelBaseUrl
-  , "6"
+  , angelJobCategoryNumber jobCategory
   , "/"
   , "browse_startups_table?"
   , query

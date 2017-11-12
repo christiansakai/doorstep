@@ -4,13 +4,11 @@
 
 module Main where
 
--- import Url
--- import Decode
--- import Data.Maybe (fromJust)
+import Url (JobCategory(..))
+import Request
 
--- import Network.HTTP.Simple
--- import qualified Data.ByteString.Lazy.Char8 as B
 import Text.RawString.QQ
+-- import qualified Data.ByteString.Lazy.Char8 as B
 -- import Data.ByteString.Lazy.Char8 (ByteString)
 -- import Data.Aeson
 -- import qualified Data.HashMap.Strict as HM
@@ -18,13 +16,14 @@ import Text.RawString.QQ
 -- import qualified Data.Map as M
 
 main = do
-  undefined
+  getJobJson Drones
   -- request <-  parseRequest queryUrl
   -- response <- httpLBS request
   -- let body = getResponseBody response
   -- B.putStrLn body
 
 
+-- dataUrl jobCategory = angelDataUrl
 -- kueryUrl = angelJobListUrl (itemsToQueryParams . fromJust . decodeJson $ jsonSample)
 
 -- jobTableRowSelector :: Selector

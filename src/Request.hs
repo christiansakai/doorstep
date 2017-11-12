@@ -1,23 +1,28 @@
-module Request where
+module Request (getJobJson) where
 
-import Network.HTTP.Simple
+import Url (JobCategory, angelJsonUrl)
+import Decode (Item, decodeJson)
 
+import Network.HTTP.Simple 
+  ( parseRequest
+  , getResponseBody
+  , httpLBS
+  )
 
--- import qualified Data.ByteString.Lazy.Char8 as B
--- import Data.ByteString.Lazy.Char8 (ByteString)
--- import Data.Aeson
--- import qualified Data.HashMap.Strict as HM
--- import qualified Data.Text as T
--- import qualified Data.Map as M
+-- |
+-- Note to self. Since this function will have type
+-- getJobJson :: (MonadIO m, MonadThrow m) 
+--            => JobCategory -> m (Maybe [Item])
+-- and I don't want to add `exceptions` package that
+-- responsibles for `Monadthrow` to the cabal file
+-- I just use IO type here.
+getJobJson :: JobCategory -> IO (Maybe [Item])
+getJobJson jobCategory = do
+  let url = angelJsonUrl jobCategory 
 
--- main = do
---   undefined
-  -- request <-  parseRequest angelAPIUrl
-  -- response <- httpLBS request
+  request <- parseRequest url
+  response <- httpLBS request
 
-  -- let body = getResponseBody response
+  let jobJson = getResponseBody response
 
-  -- B.putStrLn body
-
-  -- httpLBS angelAPIUrl >>= putStrLn . getResponseBody
-
+  return $ decodeJson jobJson

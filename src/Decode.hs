@@ -1,9 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Decode (decodeJson, itemsToQueryParams) where
+module Decode 
+  ( Item
+  , Json
+  , decodeJson
+  , itemsToQueryParams
+  ) where
 
 import Prelude hiding (lookup)
-import Data.ByteString.Lazy.Char8 (ByteString)
+import Data.ByteString.Lazy.Internal (ByteString)
 import Data.Map (Map, lookup)
 import Data.Foldable (foldr)
 import Data.Aeson (decode)
