@@ -1,15 +1,8 @@
 module Request (getJobJson, getJobHtml) where
 
-import Url 
-  ( JobCategory
-  , angelJsonUrl
-  , angelJobListUrl
-  )
-import Decode 
-  ( Item
-  , decodeJson
-  , itemsToQueryParams
-  )
+import Types
+import Url (angelJsonUrl, angelJobListUrl)
+import Decode (decodeListingJson, itemsToQueryParams)
 import Network.HTTP.Simple 
   ( parseRequest
   , getResponseBody
@@ -23,7 +16,7 @@ import Network.HTTP.Simple
 -- and I don't want to add `exceptions` package that
 -- responsibles for `Monadthrow` to the cabal file
 -- I just use IO type here.
-getJobJson :: JobCategory -> IO (Maybe [Item])
+getJobJson :: JobCategory -> IO (Either Error [Item])
 getJobJson jobCategory = do
   let url = angelJsonUrl jobCategory 
 
@@ -32,7 +25,7 @@ getJobJson jobCategory = do
 
   let jobJson = getResponseBody response
 
-  return $ decodeJson jobJson
+  return $ decodeListingJson jobJson
 
 -- getJobList :: JobCategory -> 
 getJobHtml jobCategory items = do

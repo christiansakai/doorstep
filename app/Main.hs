@@ -17,14 +17,14 @@ import Data.ByteString.Lazy.Internal as BL
 -- import qualified Data.Map as M
 
 main = do
-  maybeItem <- getJobJson Drones
-  case maybeItem of
-    Just items -> do
+  eitherItems <- getJobJson Drones
+  case eitherItems of
+    Right items -> do
       jobHtml <- getJobHtml Drones items
       putStrLn . BL.unpackChars $ jobHtml
 
-    _ -> 
-      putStrLn "fail"
+    Left err -> 
+      putStrLn err
 
 -- dataUrl jobCategory = angelDataUrl
 -- kueryUrl = angelJobListUrl (itemsToQueryParams . fromJust . decodeJson $ jsonSample)

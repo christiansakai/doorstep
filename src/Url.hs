@@ -4,19 +4,9 @@ module Url
   , angelJobListUrl
   ) where
 
-data JobCategory =
-    BreakOutCompanies
-  | YCombinator
-  | Drones
-  | FemaleFounders
-  | Remote
-  | StanfordFounders
-  | StartupInterships
-  | Hardware
+import Types
 
-type Query = String
-
-angelBaseUrl :: String
+angelBaseUrl :: Url
 angelBaseUrl = "https://angel.co/job_lists/"
 
 angelJobCategoryNumber :: JobCategory -> String
@@ -29,7 +19,7 @@ angelJobCategoryNumber Drones = "6"
 angelJobCategoryNumber FemaleFounders = "7"
 angelJobCategoryNumber Hardware = "7"
 
-angelJsonUrl :: JobCategory -> String
+angelJsonUrl :: JobCategory -> Url
 angelJsonUrl jobCategory = concat 
   [ angelBaseUrl
   , angelJobCategoryNumber jobCategory 
@@ -37,7 +27,7 @@ angelJsonUrl jobCategory = concat
   ]
   where filter = "/filter?filter%5Broles%5D=Software+Engineer"
 
-angelJobListUrl :: JobCategory -> Query -> String
+angelJobListUrl :: JobCategory -> Query -> Url
 angelJobListUrl jobCategory query = concat 
   [ angelBaseUrl
   , angelJobCategoryNumber jobCategory
