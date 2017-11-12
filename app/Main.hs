@@ -8,6 +8,7 @@ import Url (JobCategory(..))
 import Request
 
 import Text.RawString.QQ
+import Data.ByteString.Lazy.Internal as BL
 -- import qualified Data.ByteString.Lazy.Char8 as B
 -- import Data.ByteString.Lazy.Char8 (ByteString)
 -- import Data.Aeson
@@ -16,12 +17,14 @@ import Text.RawString.QQ
 -- import qualified Data.Map as M
 
 main = do
-  getJobJson Drones
-  -- request <-  parseRequest queryUrl
-  -- response <- httpLBS request
-  -- let body = getResponseBody response
-  -- B.putStrLn body
+  maybeItem <- getJobJson Drones
+  case maybeItem of
+    Just items -> do
+      jobHtml <- getJobHtml Drones items
+      putStrLn . BL.unpackChars $ jobHtml
 
+    _ -> 
+      putStrLn "fail"
 
 -- dataUrl jobCategory = angelDataUrl
 -- kueryUrl = angelJobListUrl (itemsToQueryParams . fromJust . decodeJson $ jsonSample)

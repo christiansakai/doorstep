@@ -1,8 +1,15 @@
-module Request (getJobJson) where
+module Request (getJobJson, getJobHtml) where
 
-import Url (JobCategory, angelJsonUrl)
-import Decode (Item, decodeJson)
-
+import Url 
+  ( JobCategory
+  , angelJsonUrl
+  , angelJobListUrl
+  )
+import Decode 
+  ( Item
+  , decodeJson
+  , itemsToQueryParams
+  )
 import Network.HTTP.Simple 
   ( parseRequest
   , getResponseBody
@@ -26,3 +33,18 @@ getJobJson jobCategory = do
   let jobJson = getResponseBody response
 
   return $ decodeJson jobJson
+
+-- getJobList :: JobCategory -> 
+getJobHtml jobCategory items = do
+  let query = itemsToQueryParams items
+      url = angelJobListUrl jobCategory query
+
+  request <- parseRequest url
+  response <- httpLBS request
+
+  let jobHtml = getResponseBody response
+
+  return jobHtml
+
+
+
