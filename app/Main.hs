@@ -11,12 +11,20 @@ import Control.Monad.Catch
 import Control.Monad.Except
 import Data.Foldable (foldr)
 import Data.List (intercalate)
+import System.IO (writeFile)
 
 main :: IO ()
 main = do
   eitherHrefs <- runExceptT makeToExceptT 
   case eitherHrefs of
-    Right hrefs -> putStrLn $ intercalate "\n" hrefs
+    Right hrefs -> do
+      let listOfJobLinks = intercalate "\n" hrefs
+
+      putStrLn listOfJobLinks
+      writeFile "./angel_jobs.txt" listOfJobLinks
+
+      putStrLn "List is written to angel_jobs.txt"
+
     Left err    -> putStrLn err
 
 -- Note to self. 
