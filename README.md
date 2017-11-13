@@ -1,6 +1,6 @@
 # Doorstep
 
-A CLI to scrape [AngelList Software Engineering Jobs](https://angel.co/jobs)
+A CLI to scrape [AngelList](https://angel.co/jobs) companies that have Software Engineering vacancies.
 
 If you have `stack` installed, you can build using 
 
