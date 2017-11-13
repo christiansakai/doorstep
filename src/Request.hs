@@ -1,6 +1,8 @@
 module Request 
   ( getListings
   , getCompanyListHtml
+  , getCompanyHtml
+  , getJobHtml
   ) where
 
 import Types

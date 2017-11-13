@@ -17,12 +17,12 @@ import Text.HTML.Scalpel
   , scrapeStringLike
   )
 
-scrapeCompanyLinks :: Html -> Maybe [String]
-scrapeCompanyLinks html = 
-  scrapeStringLike html companyLinksScraper
+scrapeCompanyHrefs :: CompanyListHtml -> Maybe [Href]
+scrapeCompanyHrefs html = 
+  scrapeStringLike html companyHrefsScraper
 
-companyLinksScraper :: Scraper String [String]
-companyLinksScraper = attrs "href" companyLinkSelector
+companyHrefsScraper :: Scraper String [Href]
+companyHrefsScraper = attrs "href" companyLinkSelector
 
 companyLinkSelector :: Selector
 companyLinkSelector = div // "a"

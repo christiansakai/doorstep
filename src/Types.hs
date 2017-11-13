@@ -26,5 +26,6 @@ type Html             = String
 type CompanyListHtml  = String
 type CompanyHtml      = String
 type JobHtml          = String
+type Href             = String
 
 type Error = String 

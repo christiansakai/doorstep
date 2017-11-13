@@ -6,7 +6,9 @@ module Main where
 
 import Types
 import Request
+import Scrape
 
+main :: IO ()
 main = do
   eitherListings <- getListings Drones
   case eitherListings of
@@ -14,7 +16,10 @@ main = do
       eitherCompanyListHtml <- getCompanyListHtml Drones listings
 
       case eitherCompanyListHtml of 
-        Right companyListHtml -> putStrLn companyListHtml
+        Right companyListHtml -> 
+          case scrapeCompanyHrefs companyListHtml of
+            Just hrefs -> putStrLn $ concat hrefs
+            _          -> putStrLn "No link found"
 
         Left err -> putStrLn err
 
