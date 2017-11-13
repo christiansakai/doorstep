@@ -17,9 +17,11 @@ import Text.HTML.Scalpel
   , scrapeStringLike
   )
 
-scrapeCompanyHrefs :: CompanyListHtml -> Maybe [Href]
+scrapeCompanyHrefs :: CompanyListHtml -> Either Error [Href]
 scrapeCompanyHrefs html = 
-  scrapeStringLike html companyHrefsScraper
+  case scrapeStringLike html companyHrefsScraper of
+    Just hrefs -> Right hrefs
+    _          -> Left "failed to find company hrefs"
 
 companyHrefsScraper :: Scraper String [Href]
 companyHrefsScraper = attrs "href" companyLinkSelector

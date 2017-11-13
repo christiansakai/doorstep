@@ -1,6 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Main where
 
@@ -8,88 +6,52 @@ import Types
 import Request
 import Scrape
 
+import Control.Monad.IO.Class
+import Control.Monad.Catch
+import Control.Monad.Except
+import Data.Foldable (foldr)
+
 main :: IO ()
 main = do
-  eitherListings <- getListings Drones
-  case eitherListings of
-    Right listings -> do
-      eitherCompanyListHtml <- getCompanyListHtml Drones listings
+  eitherHrefs <- runExceptT makeToExceptT 
+  case eitherHrefs of
+    Right hrefs -> putStrLn . concat $ hrefs
+    Left err    -> putStrLn err
 
-      case eitherCompanyListHtml of 
-        Right companyListHtml -> 
-          case scrapeCompanyHrefs companyListHtml of
-            Just hrefs -> putStrLn $ concat hrefs
-            _          -> putStrLn "No link found"
+-- Note to self. 
+-- Since we need to make this function into main.
+-- We have to make the base into IO since main is always IO monad.
+makeToExceptT :: ExceptT Error IO [Href]
+makeToExceptT = do
+  links <- collectCompanyCategoriesLinks companyCategories
+  return links
 
-        Left err -> putStrLn err
+collectCompanyCategoriesLinks :: ( MonadIO m
+                                 , MonadThrow m
+                                 , MonadError Error m
+                                 ) 
+                              => [CompanyCategory] -> m [Href]
+collectCompanyCategoriesLinks companyCategories =
+  let nestedCompanyLinks = sequence $ fmap collectCompanyCategoryLinks companyCategories
+   in fmap concat nestedCompanyLinks
 
-    Left err -> 
-      putStrLn err
+collectCompanyCategoryLinks :: (MonadIO m, MonadThrow m, MonadError Error m)
+                             => CompanyCategory -> m [Href]
+collectCompanyCategoryLinks companyCategory = do
+  listings <- getListings companyCategory
+  companyListHtml <- getCompanyListHtml companyCategory listings
 
+  case scrapeCompanyHrefs companyListHtml of
+    Right hrefs -> return hrefs
+    Left err    -> throwError err
 
-
-
--- run :: Maybe [String]
--- run = scrapeStringLike hn scraper
-
--- scraper :: Scraper String [String]
--- scraper = chroot itemListSelector linkAndContent
-
--- itemListSelector :: Selector
--- itemListSelector = "table" @: [hasClass "itemlist"]
-
--- linkAndContent :: Scraper String [String]
--- linkAndContent = do
---   link <- getLink
---   content <- getContent
---   return [ concat [hnBaseLink ++ "/" ++ link] 
---          , content
---          ]
-
--- hnBaseLink :: String
--- hnBaseLink = "https://news.ycombinator.com/jobs"
-
--- getLink :: Scraper String String
--- getLink = attr "href" linkSelector
-
--- getContent :: Scraper String String
--- getContent = text linkSelector
-
--- linkSelector :: Selector
--- linkSelector = td // link
---   where 
---     td = "td" @:
---       [ hasClass "title"
---       , notP ("align" @= "right")
---       , notP ("valign" @= "top")
---       ]
-
---     link = "a" @: [hasClass "storylink"]
-
--- type Author = String
-
--- data Comment
---     = TextComment Author String
---     | ImageComment Author URL
---     deriving (Show, Eq)
-
--- allComments :: Maybe [Comment]
--- allComments = scrapeStringLike example2 comments
---    where
---        comments :: Scraper String [Comment]
---        comments = chroots ("div" @: [hasClass "container"]) comment
-
---        comment :: Scraper String Comment
---        comment = textComment <|> imageComment
-
---        textComment :: Scraper String Comment
---        textComment = do
---            author      <- text $ "span" @: [hasClass "author"]
---            commentText <- text $ "div"  @: [hasClass "text"]
---            return $ TextComment author commentText
-
---        imageComment :: Scraper String Comment
---        imageComment = do
---            author   <- text       $ "span" @: [hasClass "author"]
---            imageURL <- attr "src" $ "img"  @: [hasClass "image"]
---            return $ ImageComment author imageURL
+companyCategories :: [CompanyCategory]
+companyCategories = 
+  [ BreakOutCompanies
+  , YCombinator
+  , Drones
+  , FemaleFounders
+  , StanfordFounders
+  , StartupInterships
+  , Hardware
+  ]

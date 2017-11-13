@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Request 
   ( getListings
   , getCompanyListHtml
@@ -22,39 +24,44 @@ import Data.ByteString.Lazy.Char8 (unpack)
 import Data.ByteString.Lazy.Internal (ByteString)
 import Control.Monad.IO.Class
 import Control.Monad.Catch
+import Control.Monad.Except
 
-getListings :: (MonadIO m, MonadThrow m) 
+getListings :: (MonadIO m, MonadThrow m, MonadError Error m) 
             => CompanyCategory 
-            -> m (Either String [Listing])
+            -> m [Listing]
 getListings companyCategory = do
   let url = angelListingUrl companyCategory 
 
-  listings <- get url
-  return . decodeListingsJson $ listings
+  listingsJson <- get url
+  case decodeListingsJson listingsJson of
+    Right listings -> return listings
+    Left err       -> throwError err
 
-getCompanyListHtml :: (MonadIO m, MonadThrow m) 
+getCompanyListHtml :: (MonadIO m, MonadThrow m, MonadError Error m) 
                    => CompanyCategory -> [Listing] 
-                   -> m (Either Error CompanyListHtml)
+                   -> m CompanyListHtml
 getCompanyListHtml jobCategory listings = do
   let queryParams = listingsToQueryParams listings
       url = angelCompanyListHtmlUrl jobCategory queryParams
 
-  companyListHtml <- getHtml url
-  return companyListHtml
+  htmlJson <- get url
+  case decodeHtmlJson htmlJson of
+    Right html -> return html
+    Left err   -> throwError err
 
 getCompanyHtml :: (MonadIO m, MonadThrow m)
-               => FullUrl -> m (Either Error CompanyHtml)
+               => FullUrl -> m CompanyHtml
 getCompanyHtml = getHtml
 
 getJobHtml :: (MonadIO m, MonadThrow m)
-           => FullUrl -> m (Either Error JobHtml)
+           => FullUrl -> m JobHtml
 getJobHtml = getHtml
 
 getHtml :: (MonadIO m, MonadThrow m)
-           => FullUrl -> m (Either Error Html)
+           => FullUrl -> m Html
 getHtml url = do 
   html <- get url
-  return . decodeHtmlJson $ html
+  return . unpack $ html
 
 get :: (MonadIO m, MonadThrow m) => FullUrl -> m ByteString
 get url = do

@@ -13,14 +13,13 @@ angelBaseUrl :: BaseUrl
 angelBaseUrl = "https://angel.co/job_lists/"
 
 angelJobCategoryNumber :: CompanyCategory -> String
-angelJobCategoryNumber Remote = "1"
-angelJobCategoryNumber StartupInterships = "1"
+angelJobCategoryNumber StartupInterships = "2"
 angelJobCategoryNumber YCombinator = "3"
 angelJobCategoryNumber BreakOutCompanies = "4"
-angelJobCategoryNumber StanfordFounders = "4"
+angelJobCategoryNumber StanfordFounders = "5"
 angelJobCategoryNumber Drones = "6"
 angelJobCategoryNumber FemaleFounders = "7"
-angelJobCategoryNumber Hardware = "7"
+angelJobCategoryNumber Hardware = "8"
 
 angelListingUrl :: CompanyCategory -> FullUrl
 angelListingUrl companyCategory = concat 

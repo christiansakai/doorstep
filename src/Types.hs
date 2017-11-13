@@ -7,10 +7,10 @@ data CompanyCategory =
   | YCombinator
   | Drones
   | FemaleFounders
-  | Remote
   | StanfordFounders
   | StartupInterships
   | Hardware
+  deriving Show
 
 type FullUrl     = String
 type BaseUrl     = String
