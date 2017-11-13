@@ -10,12 +10,13 @@ import Control.Monad.IO.Class
 import Control.Monad.Catch
 import Control.Monad.Except
 import Data.Foldable (foldr)
+import Data.List (intercalate)
 
 main :: IO ()
 main = do
   eitherHrefs <- runExceptT makeToExceptT 
   case eitherHrefs of
-    Right hrefs -> putStrLn . concat $ hrefs
+    Right hrefs -> putStrLn $ intercalate "\n" hrefs
     Left err    -> putStrLn err
 
 -- Note to self. 
