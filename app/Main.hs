@@ -8,13 +8,13 @@ import Types
 import Request
 
 main = do
-  eitherItems <- getJobListJson Drones
-  case eitherItems of
-    Right items -> do
-      eitherJobListHtml <- getJobListHtml Drones items
+  eitherListings <- getListings Drones
+  case eitherListings of
+    Right listings -> do
+      eitherCompanyListHtml <- getCompanyListHtml Drones listings
 
-      case eitherJobListHtml of 
-        Right jobListHtml -> putStrLn jobListHtml
+      case eitherCompanyListHtml of 
+        Right companyListHtml -> putStrLn companyListHtml
 
         Left err -> putStrLn err
 

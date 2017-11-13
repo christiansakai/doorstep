@@ -2,7 +2,7 @@ module Types where
 
 import Data.ByteString.Lazy.Internal (ByteString)
 
-data JobCategory =
+data CompanyCategory =
     BreakOutCompanies
   | YCombinator
   | Drones
@@ -12,16 +12,19 @@ data JobCategory =
   | StartupInterships
   | Hardware
 
-type Url    = String
-type Query  = String
+type FullUrl     = String
+type BaseUrl     = String
+type QueryParams = String
 
-type Item = (Startup, [Listing])
-
-type Startup  = Integer
-type Listing  = Integer
+type Listing    = (StartupId, [ListingId])
+type StartupId  = Integer
+type ListingId  = Integer
 
 type Json = ByteString
 
-type Html = String
+type Html             = String
+type CompanyListHtml  = String
+type CompanyHtml      = String
+type JobHtml          = String
 
-type Error = String
+type Error = String 

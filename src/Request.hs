@@ -1,43 +1,61 @@
-module Request (getJobListJson, getJobListHtml) where
+module Request 
+  ( getListings
+  , getCompanyListHtml
+  ) where
 
 import Types
-import Url (angelJsonUrl, angelJobListUrl)
-import Decode 
-  ( decodeListingJson
-  , decodeHtmlJson
-  , itemsToQueryParams
+import Url 
+  ( angelListingUrl
+  , angelCompanyListHtmlUrl
+  , listingsToQueryParams
   )
+import Decode (decodeListingsJson, decodeHtmlJson)
 import Network.HTTP.Simple 
-  ( parseRequest
+  ( Response
+  , parseRequest
   , getResponseBody
   , httpLBS
   )
 import Data.ByteString.Lazy.Char8 (unpack)
+import Data.ByteString.Lazy.Internal (ByteString)
 import Control.Monad.IO.Class
 import Control.Monad.Catch
 
-getJobListJson :: (MonadIO m, MonadThrow m) 
-               => JobCategory -> m (Either Error [Item])
-getJobListJson jobCategory = do
-  let url = angelJsonUrl jobCategory 
+getListings :: (MonadIO m, MonadThrow m) 
+            => CompanyCategory 
+            -> m (Either String [Listing])
+getListings companyCategory = do
+  let url = angelListingUrl companyCategory 
 
+  listings <- get url
+  return . decodeListingsJson $ listings
+
+getCompanyListHtml :: (MonadIO m, MonadThrow m) 
+                   => CompanyCategory -> [Listing] 
+                   -> m (Either Error CompanyListHtml)
+getCompanyListHtml jobCategory listings = do
+  let queryParams = listingsToQueryParams listings
+      url = angelCompanyListHtmlUrl jobCategory queryParams
+
+  companyListHtml <- getHtml url
+  return companyListHtml
+
+getCompanyHtml :: (MonadIO m, MonadThrow m)
+               => FullUrl -> m (Either Error CompanyHtml)
+getCompanyHtml = getHtml
+
+getJobHtml :: (MonadIO m, MonadThrow m)
+           => FullUrl -> m (Either Error JobHtml)
+getJobHtml = getHtml
+
+getHtml :: (MonadIO m, MonadThrow m)
+           => FullUrl -> m (Either Error Html)
+getHtml url = do 
+  html <- get url
+  return . decodeHtmlJson $ html
+
+get :: (MonadIO m, MonadThrow m) => FullUrl -> m ByteString
+get url = do
   request <- parseRequest url
   response <- httpLBS request
-
-  let jobJson = getResponseBody response
-
-  return . decodeListingJson $ jobJson
-
-getJobListHtml :: (MonadIO m, MonadThrow m) 
-               => JobCategory -> [Item] -> m (Either Error Html)
-getJobListHtml jobCategory items = do
-  let query = itemsToQueryParams items
-      url = angelJobListUrl jobCategory query
-
-  request <- parseRequest url
-  response <- httpLBS request
-
-  let jobHtml = getResponseBody response
-
-  return . decodeHtmlJson $ jobHtml
-
+  return . getResponseBody $ response
